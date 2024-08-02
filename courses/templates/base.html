@@ -22,6 +22,7 @@
             </ul>
         </div>
         <div id="content">{% block content %}{% endblock %}</div>
+        {% block include_js %}{% endblock %}
         {% block domready %}
             <script>
                 window.document.addEventListener('DOMContentLoaded', function(event) {
