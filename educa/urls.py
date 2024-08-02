@@ -20,11 +20,16 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from courses import views
+
 urlpatterns = [
+    path(route='', view=views.CourseListView.as_view(), name='course_list'),
     path(route='accounts/login/', view=auth_views.LoginView.as_view(), name='login'),
     path(route='accounts/logout/', view=auth_views.LogoutView.as_view(), name='logout'),
     path(route='admin/', view=admin.site.urls),
-    path(route='course/', view=include('courses.urls')),
+    path(route='course/', view=include(arg='courses.urls')),
+    path(route='students/', view=include(arg='students.urls')),
+    path(route='__debug__/', view=include('debug_toolbar.urls')),
 ]
 
 if settings.DEBUG:

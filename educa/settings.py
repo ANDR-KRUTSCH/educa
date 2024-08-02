@@ -14,6 +14,8 @@ from decouple import config
 
 from pathlib import Path
 
+from django.urls import reverse_lazy
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -29,13 +31,20 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
 
 # Application definition
 
 INSTALLED_APPS = [
     # My apps
     'courses.apps.CoursesConfig',
+    'students.apps.StudentsConfig',
     # Other apps
+    'debug_toolbar',
+    'embed_video',
     # Default apps
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,6 +55,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -138,3 +148,24 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = 'media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# Login settings
+
+LOGIN_REDIRECT_URL = reverse_lazy('student_course_list')
+
+
+# Cache settings
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379',
+    },
+}
+
+CACHE_MIDDLEWARE_ALIAS = 'default'
+
+CACHE_MIDDLEWARE_SECONDS = 60 * 15
+
+CACHE_MIDDLEWARE_KEY_PREFIX = 'educa'

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.auth import get_user_model
+from django.template.loader import render_to_string
 
 from .fields import OrderField
 
@@ -28,6 +29,7 @@ class Course(models.Model):
     slug = models.SlugField(max_length=200, unique=True)
     overview = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
+    students = models.ManyToManyField(to=User, blank=True, related_name='courses_joined')
 
     class Meta:
         ordering = (
@@ -77,6 +79,9 @@ class ItemBase(models.Model):
 
     def __str__(self) -> str:
         return self.title
+    
+    def render(self):
+        return render_to_string(template_name=f'courses/content/{self._meta.model_name}.html', context=dict(item=self))
     
 
 class Text(ItemBase):

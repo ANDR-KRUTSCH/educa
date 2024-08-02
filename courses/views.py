@@ -4,19 +4,23 @@ from braces.views import CsrfExemptMixin, JSONRequestResponseMixin
 
 from django.db.models import Model
 from django.db.models.query import QuerySet
+from django.db.models.aggregates import Count
 from django.forms import Form, ModelForm
 from django.forms.models import modelform_factory
 from django.http import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.views.generic.base import View, TemplateResponseMixin
+from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.apps import apps
+from django.core.cache import cache
 
-from .models import Course, Module, Content
+from students.forms import CourseEnrollForm
+from .models import Subject, Course, Module, Content
 from .forms import ModuleFormSet
 
 # Create your views here.
@@ -184,3 +188,49 @@ class ContentOrderView(CsrfExemptMixin, JSONRequestResponseMixin, View):
         for pk, order in self.request_json.items():
             Content.objects.filter(pk=pk, module__course__owner=request.user).update(order=order)
             return self.render_json_response({'saved': 'ok'})
+        
+
+class CourseListView(TemplateResponseMixin, View):
+    model = Course
+    template_name = 'courses/course/list.html'
+
+    def get(self, request: HttpRequest, subject: str = None) -> HttpResponse:
+        subjects = cache.get(key='subjects')
+        if not subjects:
+            subjects = Subject.objects.annotate(total_courses=Count('courses'))
+            cache.set(key='subjects', value=subjects)
+
+        all_courses = Course.objects.annotate(total_modules=Count('modules'))
+
+        if subject:
+            subject: Subject = get_object_or_404(klass=Subject, slug=subject)
+            key = f'subject_{subject.pk}_courses'
+            courses = cache.get(key=key)
+            if not courses:
+                courses = all_courses.filter(subject=subject)
+                cache.set(key=key, value=courses)
+        else:
+            courses = cache.get(key='all_courses')
+            if not courses:
+                courses = all_courses
+                cache.set(key='all_courses', value=courses)
+
+        context = dict(
+            subjects=subjects,
+            subject=subject,
+            courses=courses,
+        )
+
+        return self.render_to_response(context=context)
+    
+
+class CourseDetailView(DetailView):
+    model = Course
+    template_name = 'courses/course/detail.html'
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context['enroll_form'] = CourseEnrollForm(initial=dict(course=self.object))
+
+        return context

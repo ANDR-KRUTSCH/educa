@@ -14,4 +14,6 @@ urlpatterns = (
     path(route='module/<int:module_pk>/content/<model_name>/create/', view=views.ContentCreateUpdateView.as_view(), name='module_content_create'),
     path(route='module/<int:module_pk>/content/<model_name>/<pk>/', view=views.ContentCreateUpdateView.as_view(), name='module_content_update'),
     path(route='content/<pk>/delete/', view=views.ContentDeleteView.as_view(), name='module_content_delete'),
+    path(route='subject/<slug:subject>/', view=views.CourseListView.as_view(), name='course_list_by_subject'),
+    path(route='<slug:slug>/', view=views.CourseDetailView.as_view(), name='course_detail'),
 )
