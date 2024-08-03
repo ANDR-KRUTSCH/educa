@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'students.apps.StudentsConfig',
     # Other apps
     'debug_toolbar',
+    'rest_framework',
     'embed_video',
     # Default apps
     'django.contrib.admin',
@@ -169,3 +170,12 @@ CACHE_MIDDLEWARE_ALIAS = 'default'
 CACHE_MIDDLEWARE_SECONDS = 60 * 15
 
 CACHE_MIDDLEWARE_KEY_PREFIX = 'educa'
+
+
+# Django REST Framework settings
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ),
+}
