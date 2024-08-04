@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.shortcuts import redirect
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
@@ -18,12 +19,12 @@ from .forms import CourseEnrollForm
 class StudentsRegistrationView(CreateView):
     template_name = 'students/student/registration.html'
     form_class = UserCreationForm
-    success_url = reverse_lazy('student_course_list')
 
     def form_valid(self, form: UserCreationForm) -> HttpResponse:
-        user = authenticate(request=self.request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+        form.save()
+        user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
         login(request=self.request, user=user)
-        return super().form_valid(form)
+        return redirect(to='student_course_list')
     
 
 class StudentEnrollCourseView(LoginRequiredMixin, FormView):
