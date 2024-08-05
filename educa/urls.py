@@ -31,7 +31,7 @@ urlpatterns = [
     path(route='students/', view=include(arg='students.urls')),
     path(route='chat/', view=include(arg='chat.urls', namespace='chat')),
     path(route='api/', view=include(arg='courses.api.urls', namespace='api')),
-    path(route='__debug__/', view=include(arg='debug_toolbar.urls')),
+    # path(route='__debug__/', view=include(arg='debug_toolbar.urls')),
 ]
 
 if settings.DEBUG:
